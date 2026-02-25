@@ -418,9 +418,9 @@ func (q *Queue) FetchOrderedQueue() ([]*QueueUser, error) {
 	querySet := [...]string{
 		"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 1",                                                                                      // 0. NOW
 		"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 0 AND topped > 0 ORDER BY topped DESC, level DESC, gifts DESC, timestamp ASC",           // 1. Topped users
-		"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 0 AND topped = 0 AND level > 0 ORDER BY level DESC, timestamp ASC",                      // 2. New & old abos
-		"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 0 AND topped = 0 AND level = 0 AND gifts >= 52 ORDER BY gifts DESC, timestamp ASC",      // 3. Cut-ins
-		"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 0 AND topped = 0 AND level = 0 AND gifts < 52 AND timestamp > 0 ORDER BY timestamp ASC", // 4. All users
+		//"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 0 AND topped = 0 AND level > 0 ORDER BY level DESC, timestamp ASC",                      // 2. New & old abos
+		//"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 0 AND topped = 0 AND level = 0 AND gifts >= 52 ORDER BY gifts DESC, timestamp ASC",      // 3. Cut-ins
+		"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 0 AND topped = 0 AND timestamp > 0 ORDER BY timestamp ASC", // 4. All users
 	}
 
 	for i := 0; i < len(querySet); i++ {
@@ -479,9 +479,9 @@ func (q *Queue) _FetchUser(pos int) *QueueUser {
 	querySet := [...]string{
 		"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 1",                                                                                      // 0. NOW
 		"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 0 AND topped > 0 ORDER BY topped DESC, level DESC, gifts DESC, timestamp ASC",           // 1. Topped users
-		"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 0 AND topped = 0 AND level > 0 ORDER BY level DESC, timestamp ASC",                      // 2. New & old abos
-		"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 0 AND topped = 0 AND level = 0 AND gifts >= 52 ORDER BY gifts DESC, timestamp ASC",      // 3. Cut-ins
-		"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 0 AND topped = 0 AND level = 0 AND gifts < 52 AND timestamp > 0 ORDER BY timestamp ASC", // 4. All users
+		//"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 0 AND topped = 0 AND level > 0 ORDER BY level DESC, timestamp ASC",                      // 2. New & old abos
+		//"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 0 AND topped = 0 AND level = 0 AND gifts >= 52 ORDER BY gifts DESC, timestamp ASC",      // 3. Cut-ins
+		"SELECT uid, nickname, level, gifts, now FROM queue WHERE now = 0 AND topped = 0 AND timestamp > 0 ORDER BY timestamp ASC", // 4. All users
 	}
 
 	for i := 0; i < len(querySet); i++ {
@@ -555,6 +555,7 @@ func (q *Queue) Encode() *SyncMessage {
 }
 
 func (q *Queue) formCutin() {
+	return
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	db, err := sql.Open("sqlite3", "file:"+UserHomeDir()+"\\AppData\\Roaming\\blive-queue\\queue_"+q.roomID+".db?cache=shared&mode=rwc")
@@ -582,11 +583,13 @@ func (q *Queue) formCutin() {
 }
 
 func (q *Queue) formCutinAndClearQueue() {
+	return
 	q.formCutin()
 	q.Clear()
 }
 
 func (q *Queue) clearCutin() {
+	return
 	q.mu.Lock()
 	defer q.mu.Unlock()
 	db, err := sql.Open("sqlite3", "file:"+UserHomeDir()+"\\AppData\\Roaming\\blive-queue\\queue_"+q.roomID+".db?cache=shared&mode=rwc")
@@ -599,6 +602,7 @@ func (q *Queue) clearCutin() {
 }
 
 func (q *Queue) isCutin(uid int) bool {
+	return false
 	db, err := sql.Open("sqlite3", "file:"+UserHomeDir()+"\\AppData\\Roaming\\blive-queue\\queue_"+q.roomID+".db?cache=shared&mode=rwc")
 	if err != nil {
 		return false
